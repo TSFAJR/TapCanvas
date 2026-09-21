@@ -15,6 +15,12 @@ aliases.zod = resolve(webRoot, 'node_modules/zod/index.js')
 
 export default defineConfig({
   root: webRoot,
+  plugins: [{
+    name: 'test-pwa-module-resolution',
+    resolveId(id) {
+      if (id === 'virtual:pwa-register/react') return id
+    },
+  }],
   resolve: { alias: aliases },
   test: {
     environment: 'jsdom',
