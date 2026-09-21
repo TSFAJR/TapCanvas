@@ -49,10 +49,15 @@ sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/health.sh
 sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/backup.sh
 sudo systemctl status tapcanvas-backup.timer
 sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/rollback.sh
+sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/restore-drill.sh /data/tap-canvas/backups/备份目录
 ```
 
 回退仅接受已通过健康检查且 schema 指纹相同的版本。指纹覆盖 Prisma、基础 schema、seed runner 和 New API model/patch；不同指纹必须先评估并恢复配套备份。升级评审仍必须核对数据库变更，指纹不是自动判定 SQL 兼容性的替代品。
 
 数据恢复步骤：关闭 Web/API/Bridge/New API/Redis，另存当前状态；校验备份 SHA256SUMS；将两个 dump 恢复到新建隔离数据库并验证；需要正式切换时再恢复匹配版本数据库与 files.tar.gz（包括 Redis AOF/RDB 和 Bridge DSH_HOME），恢复对应密钥和镜像 manifest，启动并验收。禁止直接覆盖未经保留的当前数据。
+
+`restore-drill.sh` 自动校验备份并恢复两个隔离数据库，输出各表行数和 schema，不修改生产数据库。演练数据库会保留，复核后按报告中的明确名称清理。发布记录另含实际 Prisma 迁移清单和运行镜像 ID。
+
+前端沿用官方的公开素材 CDN（TOS/R2 公共地址），只用于读取官方内置演示素材；这不等于配置了媒体上传或后端对象存储。
 
 日志：`docker compose` 经 common.sh 的 `dc logs` 查看；`journalctl -u tapcanvas-backup.service` 查看备份结果。以 health.sh、OOMKilled、RestartCount、宿主 free/vmstat/df 联合判断健康，网页 200 不代表全部验收通过。

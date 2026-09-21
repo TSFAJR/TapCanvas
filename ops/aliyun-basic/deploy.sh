@@ -55,6 +55,8 @@ dc up -d --no-deps --wait --wait-timeout 180 agents-bridge agents-bridge-lb
 dc up -d --no-deps --wait --wait-timeout 180 api
 dc up -d --no-deps --wait --wait-timeout 120 web
 bash "$release/source/ops/aliyun-basic/health.sh"
+dc exec -T postgres sh -ec 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -Atc "SELECT migration_name, checksum, finished_at FROM _prisma_migrations ORDER BY started_at"' >"$release/migrations.tsv"
+docker inspect --format '{{.Name}} {{.Config.Image}} {{.Image}}' $(dc ps -q) >"$release/running-images.txt"
 python3 - "$release/version.json" <<'PY'
 import json,sys
 p=sys.argv[1];d=json.load(open(p));d['status']='healthy';json.dump(d,open(p,'w'),indent=2)
