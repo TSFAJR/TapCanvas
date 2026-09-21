@@ -72,6 +72,8 @@ services:
           memory: 64m
   web:
     logging: *bounded-logs
+    volumes:
+      - ./ops/aliyun-basic/http-cookies.conf:/etc/nginx/tapcanvas-overrides/http-cookies.conf:ro
     deploy:
       resources:
         limits:

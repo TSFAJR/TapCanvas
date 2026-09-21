@@ -64,4 +64,6 @@ HTTP/IP 部署由 Web 启动层在缺少 `crypto.randomUUID` 时使用 `crypto.g
 
 本工作流设置构建参数 `VITE_ALLOW_BASIC_WITHOUT_MODELS=true`：模型检查明确返回未就绪时显示持续提示，允许手工编辑。不会伪造模型可用性，也不会放行配置检查错误；其他构建默认仍采用官方的模型配置弹窗。
 
+HTTP/IP 入口挂载 `http-cookies.conf`，仅移除三个登录 Cookie 的 Secure 标记，使浏览器能在已选定的 HTTP 入口保存会话；HttpOnly、SameSite 与有效期保持原值。迁移到 HTTPS 时必须移除此挂载，恢复浏览器的 Secure 限制。默认 Web 镜像没有该挂载时不改写 Cookie。
+
 日志：`docker compose` 经 common.sh 的 `dc logs` 查看；`journalctl -u tapcanvas-backup.service` 查看备份结果。以 health.sh、OOMKilled、RestartCount、宿主 free/vmstat/df 联合判断健康，网页 200 不代表全部验收通过。
