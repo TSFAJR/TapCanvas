@@ -1,0 +1,9 @@
+[Unit]
+Description=TapCanvas consistent daily backup
+Requires=docker.service
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /data/tap-canvas/current/source/ops/aliyun-basic/backup.sh
+TimeoutStartSec=20min
+UMask=0077

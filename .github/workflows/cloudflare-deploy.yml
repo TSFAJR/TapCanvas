@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy-web:
+    if: github.repository == 'anymouschina/TapCanvas'
     runs-on: ubuntu-latest
 
     env:

@@ -1,0 +1,86 @@
+# Layer over docker-compose.prod.yml; all bind paths stay outside the checkout.
+services:
+  postgres:
+    restart: unless-stopped
+    command: [postgres, -c, shared_buffers=128MB, -c, max_connections=60]
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+  redis:
+    command: [redis-server, --appendonly, 'yes', --maxmemory, 80mb, --maxmemory-policy, noeviction]
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+  new-api:
+    networks: !override
+      default: {}
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+  new-api-schema-init:
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+  api-init:
+    environment:
+      NODE_OPTIONS: --max-old-space-size=640
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+  api:
+    environment:
+      NODE_OPTIONS: --max-old-space-size=512
+      AGENTS_BRIDGE_MAX_CONCURRENCY: '1'
+      AGENTS_BRIDGE_MAX_PER_USER: '1'
+      AGENTS_BRIDGE_MAX_QUEUE_DEPTH: '2'
+    volumes:
+      - /data/tap-canvas/public-assets:/app/assets/public
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+  agents-bridge:
+    environment:
+      NODE_OPTIONS: --max-old-space-size=320
+      AGENTS_BRIDGE_MAX_CONCURRENCY: '1'
+      DSH_HOME: /runtime/workspace/.agents/dsh
+      AGENTS_SKILLS_DIR: /opt/agents-cli/skills
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512m
+  agents-bridge-lb:
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+  web:
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+  credit-finalizer-worker:
+    profiles: [generation]
+  workflow-runtime-worker:
+    profiles: [generation]
+  media-worker:
+    profiles: [generation]
+  async-image-worker:
+    profiles: [generation]
+volumes:
+  hono_api_postgres:
+    driver_opts: {type: none, o: bind, device: /data/tap-canvas/postgres}
+  hono_api_redis:
+    driver_opts: {type: none, o: bind, device: /data/tap-canvas/redis}
+  hono_api_db_backups:
+    driver_opts: {type: none, o: bind, device: /data/tap-canvas/db-backups}
+  agents_memory:
+    driver_opts: {type: none, o: bind, device: /data/tap-canvas/agents-memory}
+  agents_runtime:
+    driver_opts: {type: none, o: bind, device: /data/tap-canvas/agents-runtime}
