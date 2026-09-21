@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 umask 077
 [[ $# == 1 ]] || { echo 'Usage: deploy.sh /absolute/path/images.env' >&2; exit 1; }
 manifest=$(realpath "$1")
@@ -24,7 +24,9 @@ git -C "$repo" cat-file -e "$sha^{commit}"
 release="$root/releases/$(date -u +%Y%m%dT%H%M%SZ)-${sha:0:12}"
 mkdir "$release"
 cp "$manifest" "$release/images.env"
-git -C "$repo" worktree add --detach "$release/source" "$sha"
+# Source is public and bind-mounted config must be readable by non-root image
+# users (notably HAProxy). Keep release metadata and secrets under umask 077.
+(umask 022; git -C "$repo" worktree add --detach "$release/source" "$sha")
 schema=$(git -C "$repo" ls-tree -r "$sha" -- apps/hono-api/prisma apps/hono-api/schema.sql apps/hono-api/scripts/seed-postgres-patches.mjs apps/hono-api/scripts/migrate-deploy.mjs apps/hono-api/scripts/baseline-repair-sql.mjs apps/new-api/model apps/new-api/patches | sha256sum | cut -d' ' -f1)
 python3 - "$release/version.json" "$sha" "$schema" <<'PY'
 import json,sys,datetime
