@@ -8,7 +8,7 @@ permissions:
   packages: write
 concurrency:
   group: basic-images-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-24.04
