@@ -6,10 +6,10 @@ flock -n 8 || { echo 'Another operation is active' >&2; exit 1; }
 current=$(readlink -f "$root/current")
 target=$(realpath "${1:-$root/previous}")
 [[ "$target" == "$root/releases/"* && -f "$target/version.json" ]] || { echo 'Invalid rollback target' >&2; exit 1; }
-python3 - "$current/version.json" "$target/version.json" <<'PY'
-import json,sys
-a,b=[json.load(open(p)) for p in sys.argv[1:]]
-assert a['schemaFingerprint']==b['schemaFingerprint'],'Schema differs: preserve current data and restore a matching backup before rollback'
+python3 - "$root/database-schema-fingerprint" "$target/version.json" <<'PY'
+import json,sys,pathlib
+a=pathlib.Path(sys.argv[1]).read_text().strip();b=json.load(open(sys.argv[2]))
+assert a==b['schemaFingerprint'],'Schema differs: preserve current data and restore a matching backup before rollback'
 assert b['status']=='healthy','Target was not previously healthy'
 PY
 export TAP_RELEASE="$target"

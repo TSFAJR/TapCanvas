@@ -46,6 +46,7 @@ failure() {
 }
 trap failure ERR
 dc up -d --wait --wait-timeout 120 postgres redis
+printf '%s\n' "$schema" >"$root/database-schema-fingerprint"
 for step in new-api-db-init new-api-schema-init new-api-patch api-init new-api-channel-audit; do
   dc up --no-deps --force-recreate --abort-on-container-exit --exit-code-from "$step" "$step" >"$release/$step.log" 2>&1
 done

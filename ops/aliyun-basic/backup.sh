@@ -17,6 +17,7 @@ dc stop -t 30 redis
 tar -C "$TAP_ROOT" -czf "$backup/files.tar.gz" project-data public-assets agents-memory agents-runtime new-api-data redis
 tar -C /etc/tap-canvas -czf "$backup/config.tar.gz" runtime.env
 cp "$TAP_RELEASE/images.env" "$TAP_RELEASE/version.json" "$backup/"
+cp "$TAP_ROOT/database-schema-fingerprint" "$backup/"
 cp "$TAP_ROOT/redis/dump.rdb" "$backup/redis.rdb"
 (cd "$backup" && sha256sum canvas.dump gateway.dump files.tar.gz config.tar.gz images.env version.json redis.rdb > SHA256SUMS)
 touch "$backup/COMPLETE"

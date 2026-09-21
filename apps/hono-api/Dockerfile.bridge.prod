@@ -69,6 +69,7 @@ RUN --mount=type=cache,target=/pnpm/store,sharing=locked \
     pnpm install --frozen-lockfile --ignore-scripts --child-concurrency=1 --network-concurrency=1 --registry "${NPM_REGISTRY}"
 
 COPY apps/agents-cli/src ./src
+COPY packages /packages
 # 当前 tsconfig 是唯一编译真源；测试文件也必须通过严格类型检查。
 RUN pnpm exec tsc -p tsconfig.json
 
@@ -80,6 +81,7 @@ WORKDIR /opt/agents-cli
 COPY --from=builder /opt/agents-cli/node_modules ./node_modules
 COPY --from=builder /opt/agents-cli/dist ./dist
 COPY --from=builder /opt/agents-cli/package.json ./package.json
+COPY --from=builder /packages /packages
 COPY apps/agents-cli/harness ./harness
 COPY apps/agents-cli/skills ./skills
 COPY apps/agents-cli/knowledge ./knowledge
