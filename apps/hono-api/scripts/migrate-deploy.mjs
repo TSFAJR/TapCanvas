@@ -15,7 +15,8 @@
  *     migrations, baseline schema-only history, then deploy.
  *   - Existing DB with partial history: only pending migrations run.
  */
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
+import { prepareBaselineRepairSql } from "./baseline-repair-sql.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import prismaPackage from "@prisma/client";
@@ -60,6 +61,9 @@ const REQUIRED_EXISTING_DATABASE_MIGRATIONS = new Set([
 	// contract. Fresh and previously baselined databases must physically execute
 	// the additive alignment migration instead of only recording it.
 	"20260831120000_align_current_prisma_bootstrap",
+	// The alignment repair can recreate retired structures; apply the official
+	// community cleanup physically before recording the baseline as complete.
+	"20260831143000_remove_payment_and_sms",
 ]);
 
 function run(cmd) {
@@ -236,7 +240,11 @@ CREATE TABLE IF NOT EXISTS "_tapcanvas_baseline_repairs" (
 		if (!fs.existsSync(migrationFile)) {
 			throw new Error(`baseline repair SQL missing: ${migrationFile}`);
 		}
-		run(`npx prisma db execute --file "${migrationFile}" --schema prisma/schema.prisma`);
+		const repairSql = prepareBaselineRepairSql(name, fs.readFileSync(migrationFile, "utf8"));
+		execFileSync("npx", ["prisma", "db", "execute", "--stdin", "--schema", "prisma/schema.prisma"], {
+			input: repairSql,
+			stdio: ["pipe", "inherit", "inherit"],
+		});
 		await prisma.$executeRawUnsafe(
 			`INSERT INTO "_tapcanvas_baseline_repairs" (migration_name) VALUES ($1)`,
 			name,

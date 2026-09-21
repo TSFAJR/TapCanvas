@@ -54,6 +54,8 @@ sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/restore-drill.sh /dat
 
 回退仅接受已通过健康检查且 schema 指纹相同的版本。指纹覆盖 Prisma、基础 schema、seed runner 和 New API model/patch；不同指纹必须先评估并恢复配套备份。升级评审仍必须核对数据库变更，指纹不是自动判定 SQL 兼容性的替代品。
 
+首次官方基线存在历史修复与当前 schema 的冲突：旧修复尝试修改已退役的充值字段。兼容代码仅在执行历史 baseline 修复时检查这两个字段是否存在，保留原迁移文件及校验值；baseline 同时实际执行官方社区版支付/SMS 清理迁移。迁移 runner 和兼容模块也计入发布 schema 指纹。
+
 数据恢复步骤：关闭 Web/API/Bridge/New API/Redis，另存当前状态；校验备份 SHA256SUMS；将两个 dump 恢复到新建隔离数据库并验证；需要正式切换时再恢复匹配版本数据库与 files.tar.gz（包括 Redis AOF/RDB 和 Bridge DSH_HOME），恢复对应密钥和镜像 manifest，启动并验收。禁止直接覆盖未经保留的当前数据。
 
 `restore-drill.sh` 自动校验备份并恢复两个隔离数据库，输出各表行数和 schema，不修改生产数据库。演练数据库会保留，复核后按报告中的明确名称清理。发布记录另含实际 Prisma 迁移清单和运行镜像 ID。
