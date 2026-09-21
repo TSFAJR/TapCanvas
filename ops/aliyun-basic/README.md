@@ -60,4 +60,6 @@ sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/restore-drill.sh /dat
 
 前端沿用官方的公开素材 CDN（TOS/R2 公共地址），只用于读取官方内置演示素材；这不等于配置了媒体上传或后端对象存储。
 
+HTTP/IP 部署由 Web 启动层在缺少 `crypto.randomUUID` 时使用 `crypto.getRandomValues` 生成标准 UUID v4；HTTPS 下保留原生实现。这只兼容节点和会话 ID，不启用需要 HTTPS 的 Service Worker 等浏览器功能。
+
 日志：`docker compose` 经 common.sh 的 `dc logs` 查看；`journalctl -u tapcanvas-backup.service` 查看备份结果。以 health.sh、OOMKilled、RestartCount、宿主 free/vmstat/df 联合判断健康，网页 200 不代表全部验收通过。

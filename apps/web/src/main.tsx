@@ -8,6 +8,9 @@ import { GlobalClickFeedback } from './ui/GlobalClickFeedback'
 import { AppErrorBoundary } from './ui/AppErrorBoundary'
 import { BrowserZoomLock } from './runtime/BrowserZoomLock'
 import { NewApiSetupGate } from './runtime/NewApiSetupGate'
+import { installBrowserUuid } from './runtime/browserUuid'
+
+installBrowserUuid(globalThis.crypto)
 
 const RouteEntrypoint = React.lazy(() => import('./RouteEntrypoint'))
 
