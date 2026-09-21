@@ -9,6 +9,8 @@ test('guards retired columns in the real historical repair without changing unre
   const repaired = prepareBaselineRepairSql(name, sql);
   assert.equal((repaired.match(/IF EXISTS \(SELECT 1 FROM information_schema.columns/g) || []).length, 2);
   assert.ok(repaired.includes('ALTER COLUMN "id" SET DEFAULT 1;'));
+  assert.match(repaired, /DO \$\$\nBEGIN/);
+  assert.match(repaired, /END \$\$;/);
   assert.equal(repaired.slice(repaired.indexOf('-- CreateTable')), sql.slice(sql.indexOf('-- CreateTable')));
   assert.equal(prepareBaselineRepairSql('unrelated', sql), sql);
   assert.equal(prepareBaselineRepairSql(name, sql.replaceAll('\n', '\r\n')), repaired);

@@ -9,7 +9,7 @@ ALTER COLUMN "min_recharge_yuan_for_bonus" SET DATA TYPE DOUBLE PRECISION;`;
   if (!normalized.includes(original)) {
     throw new Error('Historical referral repair changed; review its compatibility transformation');
   }
-  return normalized.replace(original, `ALTER TABLE "referral_config" ALTER COLUMN "id" SET DEFAULT 1;
+  return normalized.replace(original, () => `ALTER TABLE "referral_config" ALTER COLUMN "id" SET DEFAULT 1;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'referral_config' AND column_name = 'recharge_credits_per_yuan') THEN
