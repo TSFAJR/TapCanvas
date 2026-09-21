@@ -25,7 +25,11 @@ git switch -c feat/my-feature
 
 `Basic deployment images` 工作流在 develop 提交时运行：检查编排、测试和构建 Web、构建 API/Bridge/New API，再推送 GHCR。镜像名为 `ghcr.io/tsfajr/tap-canvas-{web,api,agents-bridge,new-api}`，tag 是完整源码 SHA；最终 `deployment-manifest` artifact 包含 digest 锁定的 `images.env`。服务器不编译。GHCR 包需对部署服务器可读；不得为此公开凭据。
 
-首次准备 `/srv/tap-canvas` Git 仓库和 `/etc/tap-canvas/runtime.env`（权限 600），数据目录位于 `/data/tap-canvas`。把 manifest 放到服务器，再执行：
+首次准备 `/srv/tap-canvas` Git 仓库和 `/etc/tap-canvas/runtime.env`（权限 600），数据目录位于 `/data/tap-canvas`。
+
+首次创建 PostgreSQL 初始化挂载目录 `/data/tap-canvas/shared/postgres-init` 时使用 755，确保数据库容器用户能读取；其余私密数据目录维持 700。源码 worktree 使用公开文件权限，密钥不会放入 worktree。
+
+把 manifest 放到服务器，再执行：
 
 ```bash
 git -C /srv/tap-canvas fetch origin develop
@@ -48,6 +52,16 @@ sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/health.sh
 ## 备份与恢复
 
 `backup.sh` 暂停写服务和 Redis，导出两个数据库及持久文件，然后恢复服务；每日 04:15（上海时区）触发，有短暂停机。只清理 TapCanvas 下第 8 份以后的完整备份，不处理失败备份或旧项目数据。配置归档包含密钥，仅 root 可读；异地备份同样按密钥保护。
+
+首次健康发布后安装定时器：
+
+```bash
+sudo install -m 644 ops/aliyun-basic/tapcanvas-backup.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now tapcanvas-backup.timer
+```
+
+独立备份会恢复服务；发布流程设置 `TAP_BACKUP_KEEP_STOPPED=1`，让备份后的写服务保持停止，直到新版本初始化完成。这也允许从启动失败的版本发布修复，不会先尝试恢复故障版本。
 
 ```bash
 sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/backup.sh
