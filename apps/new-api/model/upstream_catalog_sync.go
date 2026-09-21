@@ -150,6 +150,16 @@ func loadUpstreamCatalog(ctx context.Context, client *http.Client, base string) 
 // One configured commercial channel owns the imported catalog. No credentials,
 // upstream database IDs, usage, balances, or generated assets are copied.
 func SyncConfiguredUpstreamCatalog(ctx context.Context) error {
+	if raw := strings.TrimSpace(os.Getenv("UPSTREAM_CATALOG_SYNC_ENABLED")); raw != "" {
+		enabled, err := strconv.ParseBool(raw)
+		if err != nil {
+			return fmt.Errorf("UPSTREAM_CATALOG_SYNC_ENABLED must be a boolean")
+		}
+		if !enabled {
+			common.SysLog("upstream catalog synchronization explicitly disabled")
+			return nil
+		}
+	}
 	raw := strings.TrimSpace(os.Getenv("UPSTREAM_CATALOG_CHANNEL_ID"))
 	if raw == "" {
 		var channels []Channel

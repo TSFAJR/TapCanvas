@@ -21,6 +21,8 @@ services:
           memory: 128m
   new-api:
     logging: *bounded-logs
+    environment:
+      UPSTREAM_CATALOG_SYNC_ENABLED: ${UPSTREAM_CATALOG_SYNC_ENABLED:-false}
     networks: !override
       default: {}
     deploy:

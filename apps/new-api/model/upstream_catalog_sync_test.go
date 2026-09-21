@@ -83,6 +83,13 @@ func TestConfiguredUpstreamCatalogAutomaticallyFindsLluban(t *testing.T) {
 	require.ErrorContains(t, SyncConfiguredUpstreamCatalog(context.Background()), "multiple lluban")
 }
 
+func TestConfiguredUpstreamCatalogExplicitDisableDoesNotRequireDatabaseOrNetwork(t *testing.T) {
+	t.Setenv("UPSTREAM_CATALOG_SYNC_ENABLED", "false")
+	require.NoError(t, SyncConfiguredUpstreamCatalog(context.Background()))
+	t.Setenv("UPSTREAM_CATALOG_SYNC_ENABLED", "invalid")
+	require.ErrorContains(t, SyncConfiguredUpstreamCatalog(context.Background()), "must be a boolean")
+}
+
 func TestUpstreamProtocolOrderDoesNotChangeBinding(t *testing.T) {
 	first, err := upstreamCatalogProtocol([]constant.EndpointType{"openai-video", "openai"})
 	require.NoError(t, err)

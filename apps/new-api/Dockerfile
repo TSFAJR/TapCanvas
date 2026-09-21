@@ -131,6 +131,9 @@ COPY . .
 COPY --from=web-builder /build/dist ./web/dist
 RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
     --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
+    go test ./model -run 'Test(ConfiguredUpstreamCatalog|LoadUpstreamCatalog|ApplyUpstreamCatalog|UpstreamProtocol)' -count=1
+RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
+    --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
     go build -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api
 
 FROM runtime-base
