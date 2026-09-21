@@ -50,6 +50,9 @@ trap failure ERR
 dc up -d --wait --wait-timeout 120 postgres redis
 printf '%s\n' "$schema" >"$root/database-schema-fingerprint"
 for step in new-api-db-init new-api-schema-init new-api-patch api-init new-api-channel-audit; do
+  if [[ "$step" == api-init ]]; then
+    bash "$release/source/ops/aliyun-basic/basic-model-policy.sh" >"$release/basic-model-policy.log" 2>&1
+  fi
   dc up --no-deps --force-recreate --abort-on-container-exit --exit-code-from "$step" "$step" >"$release/$step.log" 2>&1
 done
 dc up -d --no-deps --wait --wait-timeout 180 new-api
