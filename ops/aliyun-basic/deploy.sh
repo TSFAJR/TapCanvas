@@ -37,7 +37,7 @@ fi
 export TAP_RELEASE="$release"
 source "$release/source/ops/aliyun-basic/common.sh"
 dc config --quiet
-dc pull "${tap_runtime[@]}" new-api-db-init new-api-schema-init new-api-patch api-init new-api-channel-audit
+dc pull --policy missing "${tap_runtime[@]}" new-api-db-init new-api-schema-init new-api-patch api-init new-api-channel-audit
 if [[ -n "$previous" && -f "$previous/images.env" ]]; then dc stop -t 45 "${tap_writers[@]}"; fi
 # On migration failure, leave the frontend stopped and preserve both data and logs.
 failure() {

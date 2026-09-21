@@ -34,7 +34,7 @@ jobs:
             context: apps/new-api
           - name: web
             file: apps/web/Dockerfile
-            context: apps/web
+            context: .
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -51,8 +51,9 @@ jobs:
           VITE_API_BASE: /api
           VITE_GITHUB_CLIENT_ID: ''
           VITE_GITHUB_REDIRECT_URI: ''
-          VITE_TOS_PUBLIC_BASE_URL: ''
-          VITE_R2_PUBLIC_BASE_URL: ''
+          VITE_OBJECT_STORAGE_PROVIDER: tos
+          VITE_TOS_PUBLIC_BASE_URL: https://tanvas-ai.tos-cn-guangzhou.volces.com
+          VITE_R2_PUBLIC_BASE_URL: https://assets.tapcanvas.uk
           NODE_OPTIONS: --max-old-space-size=5120
         run: |
           pnpm install --frozen-lockfile --filter @tapcanvas/web...
