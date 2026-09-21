@@ -34,7 +34,7 @@ json.dump({'commit':sys.argv[2],'schemaFingerprint':sys.argv[3],'createdAt':date
 PY
 previous=$(readlink -f "$root/current" || true)
 if [[ -n "$previous" && -f "$previous/images.env" ]]; then
-  TAP_RELEASE="$previous" bash "$previous/source/ops/aliyun-basic/backup.sh"
+  TAP_RELEASE="$previous" TAP_BACKUP_KEEP_STOPPED=1 bash "$release/source/ops/aliyun-basic/backup.sh"
 fi
 export TAP_RELEASE="$release"
 source "$release/source/ops/aliyun-basic/common.sh"

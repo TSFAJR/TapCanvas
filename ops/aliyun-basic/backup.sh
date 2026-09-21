@@ -7,7 +7,10 @@ if [[ ${TAP_OPERATION_LOCK_HELD:-0} != 1 ]]; then
 fi
 backup="$TAP_ROOT/backups/$(date -u +%Y%m%dT%H%M%SZ)-$(basename "$TAP_RELEASE")"
 mkdir -p "$backup"
-restore_services() { dc up -d --no-deps redis "${tap_writers[@]}" >/dev/null; }
+restore_services() {
+  [[ ${TAP_BACKUP_KEEP_STOPPED:-0} != 1 ]] || return 0
+  dc up -d --no-deps redis "${tap_writers[@]}" >/dev/null
+}
 trap restore_services EXIT
 dc stop -t 45 "${tap_writers[@]}"
 dc exec -T postgres sh -ec 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' >"$backup/canvas.dump"
