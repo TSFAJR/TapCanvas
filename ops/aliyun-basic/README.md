@@ -62,4 +62,6 @@ sudo bash /data/tap-canvas/current/source/ops/aliyun-basic/restore-drill.sh /dat
 
 HTTP/IP 部署由 Web 启动层在缺少 `crypto.randomUUID` 时使用 `crypto.getRandomValues` 生成标准 UUID v4；HTTPS 下保留原生实现。这只兼容节点和会话 ID，不启用需要 HTTPS 的 Service Worker 等浏览器功能。
 
+本工作流设置构建参数 `VITE_ALLOW_BASIC_WITHOUT_MODELS=true`：模型检查明确返回未就绪时显示持续提示，允许手工编辑。不会伪造模型可用性，也不会放行配置检查错误；其他构建默认仍采用官方的模型配置弹窗。
+
 日志：`docker compose` 经 common.sh 的 `dc logs` 查看；`journalctl -u tapcanvas-backup.service` 查看备份结果。以 health.sh、OOMKilled、RestartCount、宿主 free/vmstat/df 联合判断健康，网页 200 不代表全部验收通过。

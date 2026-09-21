@@ -75,6 +75,13 @@ export function NewApiSetupGate(): JSX.Element | null {
   }
 
   const readiness = state.status === 'setup-required' ? state.readiness : null
+  if (readiness && import.meta.env.VITE_ALLOW_BASIC_WITHOUT_MODELS === 'true') {
+    return (
+      <div className="new-api-basic-status" role="status">
+        基础试用：当前没有可用模型，AI 生成不可用。你仍可编辑和保存项目。
+      </div>
+    )
+  }
   return (
     <div className="new-api-setup-gate" role="presentation">
       <section

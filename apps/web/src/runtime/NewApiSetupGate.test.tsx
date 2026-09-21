@@ -23,7 +23,29 @@ describe('NewApiSetupGate', () => {
     })
   })
 
-  afterEach(() => cleanup())
+  afterEach(() => {
+    cleanup()
+    vi.unstubAllEnvs()
+  })
+
+  it('allows explicitly configured basic editing while honestly reporting unavailable AI', async () => {
+    vi.stubEnv('VITE_ALLOW_BASIC_WITHOUT_MODELS', 'true')
+    getNewApiGatewayReadiness.mockResolvedValue({
+      ready: false, enabledModelCount: 0, configuredChannelCount: 0,
+      executableModelCount: 0, reasons: ['no_configured_channels'],
+    })
+    render(<NewApiSetupGate />)
+    expect((await screen.findByRole('status')).textContent).toContain('AI 生成不可用')
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('still exposes readiness errors in basic mode', async () => {
+    vi.stubEnv('VITE_ALLOW_BASIC_WITHOUT_MODELS', 'true')
+    getNewApiGatewayReadiness.mockRejectedValue(new Error('gateway unavailable'))
+    render(<NewApiSetupGate />)
+    expect(await screen.findByRole('dialog')).toBeTruthy()
+    expect(screen.getByText('gateway unavailable')).toBeTruthy()
+  })
 
   it('blocks an authenticated user until a configured executable channel exists', async () => {
     getNewApiGatewayReadiness.mockResolvedValue({

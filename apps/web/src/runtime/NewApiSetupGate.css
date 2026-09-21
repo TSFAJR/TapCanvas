@@ -1,3 +1,19 @@
+.new-api-basic-status {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 19000;
+  max-width: calc(100vw - 32px);
+  padding: 8px 12px;
+  border: 1px solid #8c692d;
+  border-radius: 8px;
+  background: #272116;
+  color: #ffe2a3;
+  font-size: 12px;
+  pointer-events: none;
+}
+
 .new-api-setup-gate {
   position: fixed;
   inset: 0;

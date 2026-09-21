@@ -87,6 +87,7 @@ jobs:
             APT_MIRROR=deb.debian.org
             PIP_INDEX_URL=https://pypi.org/simple
             GO_PROXY=https://proxy.golang.org,direct
+            VITE_ALLOW_BASIC_WITHOUT_MODELS=true
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
       - name: Record immutable image

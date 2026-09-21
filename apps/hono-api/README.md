@@ -191,6 +191,8 @@ docker-compose exec api dreamina version
 
 ## AI 对话架构（当前）
 
+个人基础部署可在 Web 构建时显式设置 `VITE_ALLOW_BASIC_WITHOUT_MODELS=true`。当网关检查成功但没有可执行模型时，前端保留“AI 生成不可用”的提示并允许手工项目/画布编辑；配置检查错误仍显示阻断错误。该选项不修改网关 readiness、模型目录、生成接口或 agents 的失败策略。HTTP/IP 访问仅在 Web 启动层补齐基于安全随机数的 UUID v4，不启用需 HTTPS 的浏览器能力。
+
 - 节点与对话同步 TapCanvasPro：章节正文在懒加载编辑器挂载时同步；文本附件支持 TXT/Markdown/DOC/DOCX；图片节点按模型目录提交参数并使用同一规格计算报价；视频展示提交时的参考素材顺序。生成偏好启用状态与保存队列以服务端结果为准，章节成片提交前等待偏好保存并复核来源作用域。
 - 对话模型与思考设置在发送前等待真实目录加载，继续沿用当前项目的目录顺序选择策略；`reasoningEffort` 经公开请求 schema、task extras、Bridge 传入当前 Harness。当前 Harness 不支持请求级 `serviceTier`，界面禁用优先服务，历史启用状态要求显式关闭；不显示已生效的假象。节点快捷入口统一投递主对话，不引入 Pro 的旧 intent lifecycle 执行链。
 
