@@ -30,22 +30,23 @@ ENV PNPM_HOME=/pnpm \
 
 RUN npm install --global pnpm@10.8.1
 
-WORKDIR /workspace/apps/web
-COPY apps/web/package.json apps/web/pnpm-lock.yaml ./
+WORKDIR /workspace
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages ./packages
 RUN --mount=type=cache,target=/pnpm/store,sharing=locked \
-    pnpm install --frozen-lockfile --ignore-workspace \
+    pnpm install --frozen-lockfile --filter @tapcanvas/web... \
       --child-concurrency=1 --network-concurrency=1 \
       --registry "${NPM_REGISTRY}"
 
 COPY tsconfig.base.json /workspace/tsconfig.base.json
-COPY packages /workspace/packages
 COPY apps/hono-api/src/modules/flow/flow.anchor-bindings.ts \
      /workspace/apps/hono-api/src/modules/flow/flow.anchor-bindings.ts
 COPY apps/hono-api/src/modules/project-directory/project-directory.contract.ts \
      /workspace/apps/hono-api/src/modules/project-directory/project-directory.contract.ts
 COPY apps/web /workspace/apps/web
 
-RUN pnpm build
+RUN pnpm --filter @tapcanvas/web build
 
 FROM ${DOCKERHUB_REGISTRY}/nginx:1.27-alpine AS runtime
 COPY apps/web/nginx.conf /etc/nginx/nginx.conf
