@@ -483,7 +483,16 @@ export class RequestMcpGateway {
     const visibleTools = [
       ...(outputContract ? [structuredOutputTool(outputContract)] : [{ ...DELIVERY_REPORT_TOOL,
         description: 'Submit final semantic delivery self-check. For a response use the response contract. For artifacts first call get_delivery_evidence, then bind every frozen must requirement to exact real terminal output evidence IDs; explain why those facts satisfy the user request.',
-        parameters: { type: "object", anyOf: [DELIVERY_REPORT_TOOL.parameters, ARTIFACT_REPORT_PARAMETERS] } }, DELIVERY_EVIDENCE_TOOL, USER_INTENT_TOOL]),
+        parameters: {
+          type: "object",
+          // Native Chat Completions tool clients inspect root properties for argument types.
+          // Keep both complete branches so their required fields remain unchanged.
+          properties: {
+            ...(isJsonObject(ARTIFACT_REPORT_PARAMETERS.properties) ? ARTIFACT_REPORT_PARAMETERS.properties : {}),
+            ...(isJsonObject(DELIVERY_REPORT_TOOL.parameters.properties) ? DELIVERY_REPORT_TOOL.parameters.properties : {}),
+          },
+          anyOf: [DELIVERY_REPORT_TOOL.parameters, ARTIFACT_REPORT_PARAMETERS],
+        } }, DELIVERY_EVIDENCE_TOOL, USER_INTENT_TOOL]),
       ...tools.filter((tool) =>
         tool.name !== "tapcanvas_tool_schema_get" && tool.name !== DELIVERY_REPORT_TOOL.name && tool.name !== STRUCTURED_OUTPUT_TOOL && tool.name !== DELIVERY_EVIDENCE_TOOL.name && tool.name !== USER_INTENT_TOOL_NAME
       ),

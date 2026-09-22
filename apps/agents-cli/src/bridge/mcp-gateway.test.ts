@@ -146,3 +146,33 @@ test("freezes the root agent's response delivery report without calling Hono", a
   assert.match(String(gateway.deliveryReport(token)?.expectedDelivery.contractHash), /^sha256:[a-f0-9]{64}$/u);
   assert.equal(gateway.executions(token)[0]?.status, "succeeded");
 });
+
+
+test("advertises structured delivery arguments at the root and rejects encoded strings", async () => {
+  const gateway = new RequestMcpGateway();
+  const token = gateway.register([], [], null);
+  const listed = await gateway.handle(token, `Bearer ${token}`, {
+    jsonrpc: "2.0", id: 1, method: "tools/list",
+  });
+  const body = listed.body as { result: { tools: Array<{ name: string; inputSchema: {
+    properties: Record<string, { type: string }>; anyOf: unknown[];
+  } }> } };
+  const schema = body.result.tools.find(tool => tool.name === "report_delivery")?.inputSchema;
+  assert.equal(schema?.properties.delivery?.type, "object");
+  assert.equal(schema?.properties.requirements?.type, "array");
+  assert.equal(schema?.properties.expectedDelivery?.type, "object");
+  assert.equal(schema?.properties.criteria?.type, "array");
+  assert.equal(schema?.anyOf.length, 2);
+  await gateway.handle(token, `Bearer ${token}`, {
+    jsonrpc: "2.0", id: 2, method: "tools/call", params: {
+      name: "report_delivery", arguments: {
+        taskGoal: "Read canvas", requestedOutput: "Node count", taskKind: "verification",
+        delivery: JSON.stringify({ mode: "response", mediaType: null, kind: "answer", output: "1 node" }),
+        requirements: JSON.stringify([{ id: "read", statement: "Read the canvas" }]),
+        rationale: "Read completed",
+      },
+    },
+  });
+  assert.equal(gateway.deliveryReport(token), null);
+  assert.equal(gateway.executions(token)[0]?.status, "failed");
+});

@@ -71,7 +71,8 @@ RUN --mount=type=cache,target=/pnpm/store,sharing=locked \
 COPY apps/agents-cli/src ./src
 COPY packages /packages
 # 当前 tsconfig 是唯一编译真源；测试文件也必须通过严格类型检查。
-RUN pnpm exec tsc -p tsconfig.json
+RUN pnpm exec tsc -p tsconfig.json \
+    && node --test dist/bridge/mcp-gateway.test.js
 
 # ─────────────────────────── runtime：只打构建包（无 src / 无 tsconfig）───────────────────────────
 FROM base AS runtime

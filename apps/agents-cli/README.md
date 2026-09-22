@@ -8,6 +8,8 @@
 
 节点快捷动作继续进入同一主对话链。Web 的思考程度设置通过公开请求 `reasoningEffort` 传入 Bridge，并用于当前 Harness 请求；后续续执行继承已冻结执行合同。当前引擎未实现请求级 `serviceTier` 覆盖，Web 不允许启用优先服务，不能把该设置显示为已执行。
 
+MCP 的 `report_delivery` 在根层声明对象/数组参数类型，同时保留 response/artifact 的完整分支合同，便于 Chat Completions 客户端正确暴露原生工具参数。字符串化对象仍明确拒绝；证据校验与最终交付校验不变。
+
 ## 安装
 
 在仓库根目录执行：

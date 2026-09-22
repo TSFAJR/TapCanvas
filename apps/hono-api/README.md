@@ -191,6 +191,8 @@ docker-compose exec api dreamina version
 
 ## AI 对话架构（当前）
 
+`report_delivery` 的 MCP schema 在根层显式暴露结构化字段，并保留 response/artifact 两个完整合同分支；Chat Completions 工具参数必须使用真实对象和数组，字符串化对象仍报错，不绕过交付证据校验。
+
 阿里云个人试用部署通过 New API 的三个独立 FullBlast 渠道接入 `qwen3.7-plus`（Chat Completions，关闭思考）、`wan2.7-image`（1024×1024 文生图）和 `wan3.0-video`（720P 文字/单图视频）。不做模型自动降级。视频使用显式 `task.fullblast-video` 协议，将规范输入转换为 `duration/size/metadata.media` 并读取 `metadata.url/usage`；仅已接入能力进入可执行目录。`credit-finalizer-worker` 与 `async-image-worker` 单副本运行，共享 API 的 `/app/assets/public` 持久挂载。生成配置、发布、备份说明见 `ops/aliyun-basic/FULLBLAST.md`。
 
 个人基础部署可在 Web 构建时显式设置 `VITE_ALLOW_BASIC_WITHOUT_MODELS=true`。当网关检查成功但没有可执行模型时，前端保留“AI 生成不可用”的提示并允许手工项目/画布编辑；配置检查错误仍显示阻断错误。该选项不修改网关 readiness、模型目录、生成接口或 agents 的失败策略。HTTP/IP 访问仅在 Web 启动层补齐基于安全随机数的 UUID v4，不启用需 HTTPS 的浏览器能力。

@@ -73,14 +73,14 @@ for item in models:
 
 exchange = float(env['NEW_API_USD_EXCHANGE_RATE'])
 api(f'/api/models/{ids["qwen3.7-plus"]}/pricing', {
-    'billing_mode': 'per_token', 'selling_multiplier': 1,
+    'billing_mode': 'per_token',
     'input_price_usd_per_million': 1.32 / exchange,
     'output_price_usd_per_million': 5.28 / exchange,
     'cache_read_price_usd_per_million': 0.264 / exchange,
     'cache_write_price_usd_per_million': 1.65 / exchange}, 'PUT')
 for name, price, specs in [('wan2.7-image', 0.11, image_pricing), ('wan3.0-video', 0.396, video_pricing)]:
     api(f'/api/models/{ids[name]}/pricing', {'billing_mode': 'per_request',
-        'selling_multiplier': 1, 'fixed_price': price, 'fixed_price_currency': 'CNY', 'spec_pricing': specs}, 'PUT')
+        'fixed_price': price, 'fixed_price_currency': 'CNY', 'spec_pricing': specs}, 'PUT')
 
 channels = {item['name']: item for item in api('/api/channel/?p=1&page_size=100')['items']}
 for name in ids:
