@@ -191,6 +191,8 @@ docker-compose exec api dreamina version
 
 ## AI 对话架构（当前）
 
+画布快捷动作同时支持普通项目画布和章节画布：入口必须携带真实项目与源节点，只有真实章节作用域才注入 chapterId；不得为普通画布伪造章节。发送队列显式保留空章节作用域，切换到章节后拒绝投递原项目画布任务。
+
 `report_delivery` 的 MCP schema 在根层显式暴露结构化字段，并保留 response/artifact 两个完整合同分支；Chat Completions 工具参数必须使用真实对象和数组，字符串化对象仍报错，不绕过交付证据校验。
 
 阿里云个人试用部署通过 New API 的三个独立 FullBlast 渠道接入 `qwen3.7-plus`（Chat Completions，关闭思考）、`wan2.7-image`（1024×1024 文生图）和 `wan3.0-video`（720P 文字/单图视频）。不做模型自动降级。视频使用显式 `task.fullblast-video` 协议，将规范输入转换为 `duration/size/metadata.media` 并读取 `metadata.url/usage`；仅已接入能力进入可执行目录。`credit-finalizer-worker` 与 `async-image-worker` 单副本运行，共享 API 的 `/app/assets/public` 持久挂载。生成配置、发布、备份说明见 `ops/aliyun-basic/FULLBLAST.md`。

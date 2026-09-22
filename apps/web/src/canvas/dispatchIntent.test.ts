@@ -92,10 +92,23 @@ describe('canvas actions enter the main AI chat', () => {
     expect(toast).not.toHaveBeenCalled()
   })
 
-  it.each([undefined, { ...chapterContext, chapterId: '' }])('rejects missing chapter scope', (context) => {
+  it.each([undefined, { ...chapterContext, projectId: '' }, { ...chapterContext, projectId: '   ' }])('rejects missing project scope', (context) => {
     dispatchIntent('generate_scene_references', 'source-1', { chapterContext: context })
     expect(useChatCommandStore.getState().pending).toBeNull()
     expect(toast).toHaveBeenCalledWith(expect.stringContaining('缺少真实'), 'error')
+  })
+
+  it('submits an ordinary project canvas without inventing a chapter', () => {
+    dispatchIntent('generate_group_storyboard', 'source-1', {
+      chapterContext: { ...chapterContext, bookId: null, chapterId: '' },
+    })
+    const command = useChatCommandStore.getState().consume()
+    expect(command).toMatchObject({ queuedProjectId: 'project-1', queuedChapterId: '', canvasNodeId: 'source-1' })
+    if (!command) throw new Error('Expected project canvas command')
+    expect(readFacts(command.text)).not.toHaveProperty('chapterId')
+    expect(readFacts(command.text).sourceNode).toEqual(chapterContext.flowSnapshot.nodes[0])
+    expect(setAiChatOpen).toHaveBeenCalledWith(true)
+    expect(toast).not.toHaveBeenCalled()
   })
 
   it('rejects a missing source node before submitting', () => {

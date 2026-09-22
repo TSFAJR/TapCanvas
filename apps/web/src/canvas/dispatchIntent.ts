@@ -29,8 +29,8 @@ export function buildIntentChatCommand(
   styleGuide?: { styleName?: string; referenceImages?: string[] },
 ): Omit<ChatSendCommand, 'nonce'> {
   const context = options.chapterContext
-  if (!context?.projectId || !context.chapterId) {
-    throw new Error('章节画布操作缺少真实 projectId 或 chapterId')
+  if (!context?.projectId?.trim()) {
+    throw new Error('画布操作缺少真实 projectId，请先保存或打开项目')
   }
   const sourceNode = context.flowSnapshot.nodes.find((node) => node.id === sourceNodeId)
   if (!sourceNode) throw new Error('当前画布中找不到指定源节点，请重新选择')
@@ -48,7 +48,7 @@ export function buildIntentChatCommand(
         intent,
         projectId: context.projectId,
         bookId: context.bookId,
-        chapterId: context.chapterId,
+        chapterId: context.chapterId || undefined,
         sourceNode,
         generationConfig: options.generationConfig,
         variantParams: options.variantParams,

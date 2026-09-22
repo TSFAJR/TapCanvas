@@ -6223,7 +6223,7 @@ export default function AiChatDialog({ className }: { className?: string }): JSX
       if (!cmd) return
       if (
         (cmd.queuedProjectId && cmd.queuedProjectId !== sessionScopeProjectId)
-        || (cmd.queuedChapterId && cmd.queuedChapterId !== sessionScopeChapterId)
+        || (cmd.queuedChapterId !== undefined && cmd.queuedChapterId !== sessionScopeChapterId)
       ) {
         submissionPreparingRef.current = false
         toast('请求所属项目或章节已切换，未向当前对话发送原画布任务。', 'error')
