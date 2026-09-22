@@ -58,6 +58,9 @@ done
 dc up -d --no-deps --wait --wait-timeout 180 new-api
 dc up -d --no-deps --wait --wait-timeout 180 agents-bridge agents-bridge-lb
 dc up -d --no-deps --wait --wait-timeout 180 api
+if (( ${#tap_generation_workers[@]} )); then
+  dc up -d --no-deps --wait --wait-timeout 180 "${tap_generation_workers[@]}"
+fi
 dc up -d --no-deps --wait --wait-timeout 120 web
 bash "$release/source/ops/aliyun-basic/health.sh"
 dc exec -T postgres sh -ec 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -Atc "SELECT migration_name, checksum, finished_at FROM _prisma_migrations ORDER BY started_at"' >"$release/migrations.tsv"

@@ -45,6 +45,7 @@ import (
 	taskapimart "github.com/QuantumNous/new-api/relay/channel/task/apimart"
 	taskdoubao "github.com/QuantumNous/new-api/relay/channel/task/doubao"
 	taskevolink "github.com/QuantumNous/new-api/relay/channel/task/evolink"
+	taskfullblast "github.com/QuantumNous/new-api/relay/channel/task/fullblast"
 	taskfunai "github.com/QuantumNous/new-api/relay/channel/task/funai"
 	taskGemini "github.com/QuantumNous/new-api/relay/channel/task/gemini"
 	"github.com/QuantumNous/new-api/relay/channel/task/hailuo"
@@ -180,6 +181,8 @@ func GetTaskPlatform(c *gin.Context) constant.TaskPlatform {
 
 func GetTaskAdaptor(platform constant.TaskPlatform) channel.TaskAdaptor {
 	switch platform {
+	case constant.TaskPlatform(constant.ProtocolTaskFullBlast):
+		return &taskfullblast.TaskAdaptor{}
 	//case constant.APITypeAIProxyLibrary:
 	//	return &aiproxy.Adaptor{}
 	case constant.TaskPlatformSuno:

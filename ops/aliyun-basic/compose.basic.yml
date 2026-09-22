@@ -81,13 +81,35 @@ services:
         limits:
           memory: 64m
   credit-finalizer-worker:
-    profiles: [generation]
+    profiles: [fullblast]
+    logging: *bounded-logs
+    environment:
+      NODE_OPTIONS: --max-old-space-size=320
+      ASYNC_AGENT_CONTINUATION_CONCURRENCY: '1'
+    volumes:
+      - /data/tap-canvas/public-assets:/app/assets/public
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512m
   workflow-runtime-worker:
     profiles: [generation]
   media-worker:
     profiles: [generation]
   async-image-worker:
-    profiles: [generation]
+    profiles: [fullblast]
+    logging: *bounded-logs
+    environment:
+      NODE_OPTIONS: --max-old-space-size=320
+      ASYNC_IMAGE_WORKER_CONCURRENCY: '1'
+    volumes:
+      - /data/tap-canvas/public-assets:/app/assets/public
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512m
 volumes:
   hono_api_postgres:
     driver_opts: {type: none, o: bind, device: /data/tap-canvas/postgres}

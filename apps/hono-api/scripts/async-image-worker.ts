@@ -39,6 +39,10 @@ async function main(): Promise<void> {
 	await assertTaskPersistenceIntegrity(env.DB);
 	const redisUrl = String(process.env.REDIS_URL ?? "redis://127.0.0.1:6379").trim();
 	const connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+	const concurrency = Number(process.env.ASYNC_IMAGE_WORKER_CONCURRENCY ?? 2);
+	if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8) {
+		throw new Error("ASYNC_IMAGE_WORKER_CONCURRENCY must be an integer between 1 and 8");
+	}
 	const worker = new Worker<AsyncImageQueueJob>(
 		QUEUE_NAMES.asyncImage,
 		async (job) => {
@@ -46,7 +50,7 @@ async function main(): Promise<void> {
 			await processAsyncImageTask(env, job.data);
 			console.log("[async-image-worker] job completed", JSON.stringify({ taskId: job.data.taskId }));
 		},
-		{ connection, concurrency: 2, maxStalledCount: 0 },
+		{ connection, concurrency, maxStalledCount: 0 },
 	);
 
 	worker.on("failed", (job, error) => {
